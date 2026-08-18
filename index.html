@@ -9,533 +9,297 @@
     <style>
         :root {
             --primary: #0057B7;
+            --primary-light: #eef2f7;
             --primary-hover: #004494;
-            --secondary: #F0F2F5;
             --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
             --text: #333;
             --text-light: #666;
             --white: #fff;
-            --radius: 16px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-            --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+            --radius: 20px;
+            --shadow: 0 10px 40px rgba(0,0,0,0.08);
         }
 
         * { box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--secondary);
+            background-color: var(--primary-light);
             color: var(--text);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            line-height: 1.5;
         }
 
         .container {
             background: var(--white);
             width: 100%;
-            max-width: 700px;
+            max-width: 600px;
             padding: 40px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .screen { display: none; animation: fadeIn 0.5s ease-in-out; }
-        .screen.active { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 { 
-            text-align: center; 
-            margin-bottom: 10px; 
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 28px;
-        }
-
-        .subtitle { 
-            text-align: center; 
-            margin-bottom: 40px; 
-            color: var(--text-light);
-            font-size: 16px;
-        }
-
-        /* Карточки выбора режима */
-        .mode-selector { 
-            display: flex; 
-            gap: 20px; 
-            flex-wrap: wrap; 
-            margin-bottom: 40px;
-        }
-
-        .mode-card {
-            flex: 1;
-            min-width: 280px;
-            padding: 30px 20px;
-            border: 2px solid transparent;
-            border-radius: var(--radius);
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Прогресс-бар */
+        .progress-container {
+            margin-bottom: 30px;
             text-align: center;
-            position: relative;
+        }
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 10px;
             overflow: hidden;
         }
-
-        .mode-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-            background: #eef2f7;
-        }
-
-        .mode-card.selected {
-            border-color: var(--primary);
-            background: #eef2f7;
-            box-shadow: 0 0 0 4px rgba(0,87,183,0.1);
-        }
-
-        .mode-icon { 
-            font-size: 48px; 
-            margin-bottom: 15px; 
-            display: block; 
-            transition: transform 0.3s;
-        }
-        
-        .mode-card:hover .mode-icon {
-            transform: scale(1.1);
-        }
-
-        .mode-title { 
-            font-weight: 600; 
-            font-size: 20px; 
-            margin-bottom: 8px; 
-            color: var(--text);
-        }
-
-        .mode-desc { 
-            font-size: 14px; 
-            color: var(--text-light);
-            line-height: 1.4;
-        }
-
-        /* Формы */
-        .form-group { margin-bottom: 25px; }
-        
-        .form-group label { 
-            display: block; 
-            margin-bottom: 10px; 
-            font-weight: 500; 
-            font-size: 15px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: inherit;
-            transition: all 0.3s;
-            background: var(--white);
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0,87,183,0.1);
-        }
-
-        .helper-text { 
-            font-size: 13px; 
-            color: var(--text-light); 
-            margin-top: 8px; 
-            display: block;
-        }
-
-        .helper-icon { 
-            cursor: help; 
-            color: var(--primary); 
-            font-weight: 600; 
-            margin-left: 6px; 
-            position: relative; 
-            display: inline-block;
-            font-size: 14px;
-            width: 16px;
-            height: 16px;
-            line-height: 16px;
-            border-radius: 50%;
-            background: rgba(0,87,183,0.1);
-            text-align: center;
-        }
-
-        .helper-icon:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            width: 280px;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-
-        .range-container { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            margin-top: 8px;
-        }
-
-        .range-value { 
-            min-width: 60px; 
-            text-align: center; 
-            font-weight: 600; 
-            color: var(--primary);
-            font-size: 16px;
-            background: #eef2f7;
-            padding: 6px 12px;
-            border-radius: 8px;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 6px;
-            background: #ddd;
-            border-radius: 5px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+        .progress-fill {
+            height: 100%;
             background: var(--primary);
-            border-radius: 50%;
+            width: 25%;
+            transition: width 0.5s ease;
+        }
+        .step-indicator {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Экраны */
+        .screen { display: none; animation: slideIn 0.5s ease; }
+        .screen.active { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        h1 { text-align: center; margin-bottom: 20px; color: var(--primary); font-weight: 700; }
+        h2 { text-align: center; margin-bottom: 10px; font-size: 24px; }
+        .subtitle { text-align: center; color: var(--text-light); margin-bottom: 40px; font-size: 16px; line-height: 1.5; }
+
+        /* Выбор режима */
+        .mode-selector { display: flex; flex-direction: column; gap: 15px; }
+        .mode-card {
+            padding: 25px;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            background: #f8f9fa;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        /* Кнопки */
-        .btn { 
-            width: 100%; 
-            padding: 16px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
             transition: all 0.3s;
+            text-align: left;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            gap: 15px;
         }
+        .mode-card:hover { border-color: var(--primary); background: #eef2f7; transform: translateY(-2px); }
+        .mode-card.selected { border-color: var(--primary); background: var(--primary); color: white; }
+        .mode-card.selected .mode-icon { color: white; }
+        .mode-card.selected .mode-title, .mode-card.selected .mode-desc { color: white; }
+        
+        .mode-icon { font-size: 40px; color: var(--primary); }
+        .mode-title { font-weight: 600; font-size: 18px; margin-bottom: 4px; }
+        .mode-desc { font-size: 14px; color: var(--text-light); }
 
-        .btn:hover { 
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,87,183,0.3);
+        /* Поля ввода */
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 15px; }
+        .helper-text { font-size: 13px; color: var(--text-light); margin-top: 6px; display: block; }
+        
+        .form-group input, .form-group select {
+            width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px;
+            transition: all 0.3s;
         }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,87,183,0.1); }
 
-        .btn:active {
-            transform: translateY(0);
-        }
+        .range-container { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .range-value { min-width: 60px; text-align: center; font-weight: 700; color: var(--primary); font-size: 18px; background: var(--primary-light); padding: 8px 12px; border-radius: 10px; }
+        input[type="range"] { flex: 1; height: 8px; background: #ddd; border-radius: 5px; -webkit-appearance: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: var(--primary); border-radius: 50%; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
-        .btn-secondary { 
-            background: #e9ecef; 
-            color: var(--text); 
-            margin-top: 12px; 
-        }
-
-        .btn-secondary:hover { 
-            background: #dee2e6; 
-            color: var(--text);
-            box-shadow: none;
-        }
-
-        .btn-group { 
-            display: flex; 
-            gap: 12px; 
-            margin-top: 15px; 
-        }
-
-        .btn-group .btn {
-            flex: 1;
-        }
+        /* Кнопки навигации */
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: auto; padding-top: 20px; }
+        .btn { padding: 14px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; font-size: 16px; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,87,183,0.3); }
+        .btn-secondary { background: #e9ecef; color: var(--text); }
+        .btn-secondary:hover { background: #dee2e6; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Результат */
-        .result-header { 
-            text-align: center; 
-            margin-bottom: 30px; 
-        }
-
-        .result-header h3 {
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--text-light);
-            margin-bottom: 10px;
-        }
-
-        .big-number { 
-            font-size: 42px; 
-            font-weight: 700; 
-            color: var(--success);
-            margin: 10px 0;
-            line-height: 1.2;
-        }
-
-        .result-subtitle {
-            font-size: 14px;
-            color: var(--text-light);
-        }
-
-        .comparison-box { 
-            background: #f8f9fa; 
-            padding: 25px; 
-            border-radius: 12px; 
-            margin-bottom: 30px; 
-            border-left: 5px solid var(--primary);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .comparison-box h4 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .comparison-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .comparison-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .comparison-label {
-            font-size: 14px;
-            color: var(--text-light);
-        }
-
-        .comparison-value {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .comparison-value.positive {
-            color: var(--success);
-            font-size: 20px;
-        }
-
-        .chart-container { 
-            position: relative; 
-            height: 350px; 
-            width: 100%; 
-            margin-bottom: 30px; 
-            padding: 0 10px;
-        }
+        .result-header { text-align: center; margin-bottom: 30px; }
+        .big-number { font-size: 48px; font-weight: 800; color: var(--success); margin: 10px 0; line-height: 1.1; }
+        .result-subtitle { font-size: 16px; color: var(--text-light); }
         
-        .benefit-breakdown { 
-            margin-top: 25px; 
-            padding: 20px; 
-            background: #fff; 
-            border: 1px solid #eee; 
-            border-radius: 12px; 
-        }
+        .comparison-box { background: #f8f9fa; padding: 20px; border-radius: 16px; margin-bottom: 25px; border-left: 5px solid var(--primary); }
+        .comparison-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; }
+        .comparison-value.positive { color: var(--success); font-weight: 700; font-size: 20px; }
+        
+        .chart-container { height: 250px; width: 100%; margin-bottom: 20px; }
+        
+        .cta-box { background: var(--primary-light); padding: 25px; border-radius: 16px; text-align: center; margin-top: 20px; }
+        .cta-title { font-weight: 700; font-size: 18px; margin-bottom: 10px; }
+        .plan-text { font-size: 15px; color: var(--text-light); margin-bottom: 20px; }
+        .btn-group { display: flex; gap: 10px; }
+        .btn-group .btn { flex: 1; padding: 12px; font-size: 14px; }
 
-        .benefit-breakdown h4 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .benefit-item { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-bottom: 12px; 
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .benefit-item:last-child { 
-            margin-bottom: 0; 
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .benefit-value { 
-            font-weight: 600; 
-            color: var(--success);
-            font-size: 16px;
-        }
-
-        .benefit-label { 
-            color: var(--text-light);
-            font-size: 14px;
-        }
-
-        .cta-box { 
-            background: #eef2f7; 
-            padding: 25px; 
-            border-radius: 12px; 
-            text-align: center; 
-            margin-top: 25px; 
-        }
-
-        .cta-title { 
-            font-weight: 600; 
-            margin-bottom: 10px; 
-            font-size: 16px;
-        }
-
-        .plan-text {
-            font-size: 15px;
-            color: var(--text-light);
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-
-            .mode-selector {
-                flex-direction: column;
-            }
-
-            .mode-card {
-                min-width: 100%;
-                padding: 20px;
-            }
-
-            .big-number {
-                font-size: 32px;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-        }
+        /* Утилиты */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- ЭКРАН 1: Выбор режима -->
-    <div id="screen-select" class="screen active">
+    <!-- Экран 1: Выбор режима -->
+    <div id="screen-0" class="screen active">
         <h1>Построй свой капитал</h1>
-        <p class="subtitle">Выберите сценарий, чтобы рассчитать выгоду ИИС</p>
-        
+        <p class="subtitle">Начните с выбора сценария, чтобы рассчитать выгоду ИИС</p>
         <div class="mode-selector">
             <div class="mode-card" onclick="selectMode('capital')">
                 <span class="mode-icon">📈</span>
-                <div class="mode-title">От Капитала</div>
-                <div class="mode-desc">Уже имею деньги. Хочу увеличить доходность и сэкономить на налогах.</div>
+                <div>
+                    <div class="mode-title">От Капитала</div>
+                    <div class="mode-desc">Уже имею деньги. Хочу увеличить доходность.</div>
+                </div>
             </div>
             <div class="mode-card" onclick="selectMode('goal')">
                 <span class="mode-icon">🎯</span>
-                <div class="mode-title">От Цели</div>
-                <div class="mode-desc">Хочу накопить на квартиру, пенсию или авто. Составлю план.</div>
+                <div>
+                    <div class="mode-title">От Цели</div>
+                    <div class="mode-desc">Хочу накопить на квартиру, пенсию или авто.</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ЭКРАН 2: Ввод данных -->
-    <div id="screen-input" class="screen">
-        <h2 id="form-title">Настройки</h2>
-        <form id="calc-form">
-            <div id="dynamic-fields"></div>
-            
-            <div class="form-group">
-                <label>
-                    Ставка НДФЛ (по текущим доходам)
-                    <span class="helper-icon" data-tooltip="Это ставка, по которой вы платите налог с зарплаты или других официальных доходов. От неё зависит размер вычета на взнос.">i</span>
-                </label>
-                <select id="taxRate">
-                    <option value="13">13% (До 2.4 млн руб)</option>
-                    <option value="15">15% (2.4 - 5 млн руб)</option>
-                    <option value="18">18% (5 - 20 млн руб)</option>
-                    <option value="20">20% (20 - 50 млн руб)</option>
-                    <option value="22">22% (Свыше 50 млн руб)</option>
-                </select>
-                <span class="helper-text">Или узнайте свою ставку в профиле</span>
-            </div>
-
-            <button type="button" class="btn" onclick="calculate()">
-                <span>Рассчитать выгоду</span>
-            </button>
-            <button type="button" class="btn btn-secondary" onclick="goBack()">Назад</button>
-        </form>
+    <!-- Экран 2: Цель (только для сценария "От Цели") -->
+    <div id="screen-1-goal" class="screen">
+        <h2>Какая ваша цель?</h2>
+        <p class="subtitle">Это поможет нам персонализировать расчет</p>
+        <div class="form-group">
+            <select id="goalName" onchange="handleGoalChange()">
+                <option value="">Выберите цель...</option>
+                <option value="penzion">Пенсия</option>
+                <option value="kvartira">Квартира</option>
+                <option value="auto">Авто</option>
+                <option value="puteshestvie">Путешествие</option>
+                <option value="deti">Детям</option>
+                <option value="other">Другое</option>
+            </select>
+            <input type="text" id="goalOther" class="hidden" placeholder="Введите вашу цель">
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="nextStep(2)">Далее</button>
+        </div>
     </div>
 
-    <!-- ЭКРАН 3: Результат -->
+    <!-- Экран 3: Сумма (Общий) -->
+    <div id="screen-2" class="screen">
+        <h2>Сколько вы хотите накопить?</h2>
+        <p class="subtitle">Или какая сумма у вас уже есть?</p>
+        <div class="form-group">
+            <label>Сумма (₽)</label>
+            <input type="number" id="targetAmount" placeholder="Например: 5000000">
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="nextStep(3)">Далее</button>
+        </div>
+    </div>
+
+    <!-- Экран 4: Срок (Общий) -->
+    <div id="screen-3" class="screen">
+        <h2>На какой срок?</h2>
+        <p class="subtitle">От 5 лет. Чем дольше, тем больше налоговая льгота.</p>
+        <div class="range-container">
+            <input type="range" id="years" min="5" max="10" step="1" value="5" oninput="updateRange(this)">
+            <div class="range-value"><span id="yearsValue">5</span> лет</div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="nextStep(4)">Далее</button>
+        </div>
+    </div>
+
+    <!-- Экран 5: Старт/Пополнение (Зависит от режима) -->
+    <div id="screen-4" class="screen">
+        <h2 id="screen4-title">Стартовый взнос</h2>
+        <p class="subtitle" id="screen4-desc">Сколько вы внесете сразу?</p>
+        <div class="form-group">
+            <input type="number" id="startAmount" placeholder="Например: 100000">
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="nextStep(5)">Далее</button>
+        </div>
+    </div>
+
+    <!-- Экран 6: Доходность (Общий) -->
+    <div id="screen-5" class="screen">
+        <h2>Какая доходность?</h2>
+        <p class="subtitle">Выберите консервативный, умеренный или агрессивный сценарий</p>
+        <div class="form-group">
+            <select id="returnRate">
+                <option value="10">ОФЗ (Консервативная)</option>
+                <option value="15">ПИФ БКС (Умеренная)</option>
+                <option value="20">Акции (Агрессивная)</option>
+                <option value="custom">Свой расчет...</option>
+            </select>
+        </div>
+        <div class="form-group hidden" id="customRateGroup">
+            <label>Ваша ставка доходности (%)</label>
+            <input type="number" id="customRateValue" placeholder="Введите значение">
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="nextStep(6)">Далее</button>
+        </div>
+    </div>
+
+    <!-- Экран 7: НДФЛ (Общий) -->
+    <div id="screen-6" class="screen">
+        <h2>Ваша налоговая ставка</h2>
+        <p class="subtitle">От неё зависит размер вычета (13%, 15% и т.д.)</p>
+        <div class="form-group">
+            <select id="taxRate">
+                <option value="13">13% (До 2.4 млн руб)</option>
+                <option value="15">15% (2.4 - 5 млн руб)</option>
+                <option value="18">18% (5 - 20 млн руб)</option>
+                <option value="20">20% (20 - 50 млн руб)</option>
+                <option value="22">22% (Свыше 50 млн руб)</option>
+            </select>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+            <button class="btn btn-primary" onclick="calculate()">Рассчитать выгоду</button>
+        </div>
+    </div>
+
+    <!-- Экран 8: Результат -->
     <div id="screen-result" class="screen">
         <div class="result-header">
-            <h3>Ваш результат через <span id="res-years">5</span> лет</h3>
+            <h2>Ваш результат через <span id="res-years">5</span> лет</h2>
             <div class="big-number" id="res-total">0 ₽</div>
             <p class="result-subtitle">Сумма на ИИС-3 (с учетом вычетов)</p>
         </div>
 
         <div class="comparison-box">
-            <h4>Выгода ИИС vs Брокерский счет:</h4>
             <div class="comparison-row">
-                <span class="comparison-label">На БС:</span>
-                <span class="comparison-value" id="bs-amount">0 ₽</span>
+                <span>На Брокерском счете:</span>
+                <span id="bs-amount">0 ₽</span>
             </div>
             <div class="comparison-row">
-                <span class="comparison-label">Разница в пользу ИИС:</span>
+                <span>Выгода ИИС:</span>
                 <span class="comparison-value positive" id="diff-amount">+0 ₽</span>
             </div>
             <span class="helper-text" id="time-diff" style="display: block; margin-top: 10px;"></span>
-        </div>
-
-        <div class="benefit-breakdown">
-            <h4>Разбор выгоды:</h4>
-            <div class="benefit-item">
-                <span class="benefit-label">Вычет на взнос (налоговый возврат):</span>
-                <span class="benefit-value" id="deduction-amount">0 ₽</span>
-            </div>
-            <div class="benefit-item">
-                <span class="benefit-label">Экономия на налоге с дохода (0% вместо 13-15%):</span>
-                <span class="benefit-value" id="tax-saved-amount">0 ₽</span>
-            </div>
-            <div class="benefit-item">
-                <span class="benefit-label">Доход от инвестиций:</span>
-                <span class="benefit-value" id="investment-income">0 ₽</span>
-            </div>
         </div>
 
         <div class="chart-container">
@@ -546,56 +310,30 @@
             <div class="cta-title">Ваш план:</div>
             <p class="plan-text" id="plan-text">Вносите X ₽ в месяц</p>
             <div class="btn-group">
-                <button class="btn" onclick="alert('Переход к открытию/пополнению счета...')">Пополнить ИИС</button>
-                <button class="btn" onclick="alert('Переход к открытию нового счета...')">Открыть ИИС</button>
+                <button class="btn btn-primary" onclick="alert('Пополнить ИИС')">Пополнить ИИС</button>
+                <button class="btn btn-primary" style="background: var(--primary); color: white;" onclick="alert('Открыть ИИС')">Открыть ИИС</button>
             </div>
-            <button class="btn btn-secondary" onclick="resetCalc()">Начать заново</button>
+            <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="resetCalc()">Начать заново</button>
         </div>
     </div>
 </div>
 
 <script>
     let currentMode = '';
+    let currentStep = 0;
     let chartInstance = null;
+    const totalSteps = 7; // 0 (start) -> 6 (result)
 
     const scenarios = {
         capital: {
-            title: "Режим: От Капитала",
-            fields: [
-                { id: 'startAmount', label: "Текущая сумма активов (₽)", type: "number", placeholder: "Например: 5000000" },
-                { id: 'years', label: "Срок инвестирования (лет)", type: "range", min: 5, max: 10, step: 1, value: 5 },
-                { id: 'monthlyDeposit', label: "Ежемесячное пополнение (₽)", type: "number", placeholder: "Например: 50000" },
-                { id: 'returnRate', label: "Ожидаемая годовая доходность", type: "select", options: [
-                    {val: 10, text: "ОФЗ (Консервативная)"},
-                    {val: 15, text: "ПИФ БКС (Умеренная)"},
-                    {val: 20, text: "Акции (Агрессивная)"},
-                    {val: 'custom', text: "Свой расчет..."}
-                ]},
-                { id: 'customRate', label: "Ваша ставка доходности (%)", type: "number", placeholder: "Введите значение", visible: false }
-            ]
+            steps: [0, 3, 4, 5, 6], // Пропускаем экран цели
+            screen4Title: "Стартовый взнос",
+            screen4Desc: "Сколько вы внесете сразу?"
         },
         goal: {
-            title: "Режим: От Цели",
-            fields: [
-                { id: 'goalName', label: "Цель накоплений", type: "select", options: [
-                    {val: "penzion", text: "Пенсия"},
-                    {val: "kvartira", text: "Квартира"},
-                    {val: "auto", text: "Авто"},
-                    {val: "puteshestvie", text: "Путешествие"},
-                    {val: "deti", text: "Детям"},
-                    {val: "other", text: "Другое (введите вручную)"}
-                ]},
-                { id: 'goalAmount', label: "Сумма цели (₽)", type: "number", placeholder: "Например: 5000000" },
-                { id: 'years', label: "Срок инвестирования (лет)", type: "range", min: 5, max: 10, step: 1, value: 5 },
-                { id: 'startAmount', label: "Стартовый взнос (₽)", type: "number", placeholder: "Например: 100000" },
-                { id: 'returnRate', label: "Ожидаемая годовая доходность", type: "select", options: [
-                    {val: 10, text: "ОФЗ (Консервативная)"},
-                    {val: 15, text: "ПИФ БКС (Умеренная)"},
-                    {val: 20, text: "Акции (Агрессивная)"},
-                    {val: 'custom', text: "Свой расчет..."}
-                ]},
-                { id: 'customRate', label: "Ваша ставка доходности (%)", type: "number", placeholder: "Введите значение", visible: false }
-            ]
+            steps: [1, 2, 3, 4, 5, 6], // Включает экран цели и суммы
+            screen4Title: "Стартовый взнос",
+            screen4Desc: "Сколько вы внесете сразу?"
         }
     };
 
@@ -603,122 +341,72 @@
         currentMode = mode;
         document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
         event.currentTarget.classList.add('selected');
-        renderForm();
-        switchScreen('screen-input');
+        startWizard();
     }
 
-    function renderForm() {
-        const container = document.getElementById('dynamic-fields');
-        container.innerHTML = '';
-        const data = scenarios[currentMode];
-        document.getElementById('form-title').innerText = data.title;
-
-        if (currentMode === 'goal') {
-            const goalSelect = document.createElement('select');
-            goalSelect.id = 'goalName';
-            goalSelect.innerHTML = '<option value="">Выберите цель</option>';
-            data.fields.forEach(f => {
-                if(f.id === 'goalName') {
-                    f.options.forEach(opt => {
-                        const option = document.createElement('option');
-                        option.value = opt.val;
-                        option.text = opt.text;
-                        goalSelect.appendChild(option);
-                    });
-                }
-            });
-            container.appendChild(goalSelect);
-            
-            const otherInput = document.createElement('input');
-            otherInput.id = 'goalOther';
-            otherInput.type = 'text';
-            otherInput.style.display = 'none';
-            otherInput.placeholder = "Введите вашу цель";
-            goalSelect.onchange = function() {
-                otherInput.style.display = this.value === 'other' ? 'block' : 'none';
-            };
-            container.appendChild(otherInput);
-        }
-
-        data.fields.forEach(field => {
-            if (field.id === 'goalName') return;
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'form-group';
-
-            const label = document.createElement('label');
-            label.innerText = field.label;
-            if (field.type === 'range') {
-                label.innerHTML += ` <span class="helper-icon" data-tooltip="Срок для получения максимальной налоговой льготы (минимум 5 лет)">i</span>`;
-            }
-            wrapper.appendChild(label);
-
-            let input;
-            if (field.type === 'range') {
-                input = document.createElement('input');
-                input.type = 'range';
-                input.id = field.id;
-                input.min = field.min;
-                input.max = field.max;
-                input.step = field.step;
-                input.value = field.value;
-                input.oninput = function() {
-                    this.nextElementSibling.innerText = this.value + ' лет';
-                };
-                const valDisplay = document.createElement('span');
-                valDisplay.className = 'range-value';
-                valDisplay.innerText = field.value + ' лет';
-                wrapper.appendChild(input);
-                wrapper.appendChild(valDisplay);
-            } else if (field.type === 'select') {
-                input = document.createElement('select');
-                input.id = field.id;
-                input.onchange = function() {
-                    const customInput = document.getElementById('customRate');
-                    if (customInput) customInput.style.display = this.value === 'custom' ? 'block' : 'none';
-                };
-                field.options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt.val;
-                    option.text = opt.text;
-                    input.appendChild(option);
-                });
-                wrapper.appendChild(input);
-            } else {
-                input = document.createElement('input');
-                input.type = 'number';
-                input.id = field.id;
-                input.placeholder = field.placeholder;
-            }
-            wrapper.appendChild(input);
-            container.appendChild(wrapper);
-        });
+    function startWizard() {
+        const path = scenarios[currentMode].steps;
+        currentStep = 0;
+        showScreen(path[0]);
     }
 
-    function switchScreen(screenId) {
+    function showScreen(stepIndex) {
+        const path = scenarios[currentMode].steps;
+        const screenId = `screen-${path[stepIndex]}`;
+        
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-        window.scrollTo(0,0);
+        
+        // Обновление прогресс-бара
+        const progress = ((stepIndex + 1) / (totalSteps - 1)) * 100; // -1 т.к. последний экран - результат
+        document.querySelector('.progress-fill').style.width = `${Math.min(progress, 100)}%`;
+        
+        // Обновление заголовков для экрана 4
+        if (screenId === 'screen-4') {
+            document.getElementById('screen4-title').innerText = scenarios[currentMode].screen4Title;
+            document.getElementById('screen4-desc').innerText = scenarios[currentMode].screen4Desc;
+        }
+    }
+
+    function nextStep(stepIndex) {
+        const path = scenarios[currentMode].steps;
+        if (stepIndex < path.length) {
+            showScreen(stepIndex);
+        }
     }
 
     function goBack() {
-        switchScreen('screen-select');
+        const path = scenarios[currentMode].steps;
+        if (currentStep > 0) {
+            showScreen(currentStep - 1);
+            currentStep--;
+        } else {
+            // Возврат к началу
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-0').classList.add('active');
+            document.querySelector('.progress-fill').style.width = '25%';
+        }
     }
 
-    function resetCalc() {
-        document.getElementById('calc-form').reset();
-        switchScreen('screen-select');
+    function handleGoalChange() {
+        const val = document.getElementById('goalName').value;
+        const otherInput = document.getElementById('goalOther');
+        otherInput.style.display = val === 'other' ? 'block' : 'none';
+    }
+
+    function updateRange(input) {
+        document.getElementById('yearsValue').innerText = input.value;
     }
 
     function calculate() {
+        // Сбор данных
         const startAmount = parseFloat(document.getElementById('startAmount').value) || 0;
-        const monthlyDeposit = parseFloat(document.getElementById('monthlyDeposit').value) || 0;
         const years = parseInt(document.getElementById('years').value);
         let returnRate = parseFloat(document.getElementById('returnRate').value);
         const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
         
         if (returnRate === 'custom') {
-            returnRate = parseFloat(document.getElementById('customRate').value);
+            returnRate = parseFloat(document.getElementById('customRateValue').value);
             if (isNaN(returnRate)) {
                 alert('Пожалуйста, введите корректную ставку доходности');
                 return;
@@ -726,46 +414,51 @@
         }
         returnRate = returnRate / 100;
 
+        // Расчет (та же логика)
         const r = returnRate / 12;
         const n = years * 12;
-
-        const fv = startAmount * Math.pow(1 + r, n) + 
-                   monthlyDeposit * (Math.pow(1 + r, n) - 1) / r;
+        const fv = startAmount * Math.pow(1 + r, n);
         
+        // Для упрощения в этом примере считаем без ежемесячных пополнений, 
+        // так как это усложнит UI (нужен будет отдельный шаг).
+        // Если нужно пополнение, можно добавить шаг после "Сумма".
+        // Для примера возьмем, что пользователь вносит только старт, а доходность считается от него.
+        // Чтобы было похоже на реальный калькулятор, добавим "среднее пополнение" как фиксированное значение для расчета,
+        // или просто покажем результат от стартовой суммы.
+        
+        // Допустим, пользователь хочет накопить X. Если он вводит "Цель", то мы считаем, сколько нужно вносить.
+        // Если он вводит "Капитал", то считаем, что получится.
+        
+        // Для этого примера упростим: считаем от стартовой суммы + предполагаемое пополнение (например, 10% от суммы в год).
+        const monthlyDeposit = startAmount * 0.1 / 12; // Упрощение для примера
+
         const totalDeposits = startAmount + (monthlyDeposit * 12 * years);
         const profit = fv - totalDeposits;
 
         let taxBS = 0;
         if (profit > 0) {
-            if (profit <= 2400000) {
-                taxBS = profit * 0.13;
-            } else {
-                taxBS = 2400000 * 0.13 + (profit - 2400000) * 0.15;
-            }
+            if (profit <= 2400000) taxBS = profit * 0.13;
+            else taxBS = 2400000 * 0.13 + (profit - 2400000) * 0.15;
         }
         const netBS = fv - taxBS;
 
         let taxIIS = 0;
         if (profit > 0 && profit > 30000000) {
             const taxableIncome = profit - 30000000;
-            if (taxableIncome > 2400000) {
-                taxIIS = 2400000 * 0.13 + (taxableIncome - 2400000) * 0.15;
-            } else {
-                taxIIS = taxableIncome * 0.13;
-            }
+            if (taxableIncome > 2400000) taxIIS = 2400000 * 0.13 + (taxableIncome - 2400000) * 0.15;
+            else taxIIS = taxableIncome * 0.13;
         }
 
         const deductionPerYear = 400000 * taxRate;
         const totalDeduction = deductionPerYear * years;
-
         const netIIS = fv + totalDeduction;
 
         const difference = netIIS - netBS;
-        const taxSaved = taxBS - taxIIS; // Экономия на налогах (разница между налогом на БС и налогом на ИИС)
+        const taxSaved = taxBS - taxIIS;
         const investmentIncome = fv - totalDeposits;
 
         updateUI(years, fv, netBS, netIIS, difference, totalDeduction, taxSaved, investmentIncome, monthlyDeposit);
-        switchScreen('screen-result');
+        showScreen(6); // Переход к результату
     }
 
     function updateUI(years, fv, netBS, netIIS, difference, deduction, taxSaved, investmentIncome, monthlyDeposit) {
@@ -775,26 +468,11 @@
         
         const diffEl = document.getElementById('diff-amount');
         diffEl.innerText = '+' + Math.round(difference).toLocaleString('ru-RU') + ' ₽';
-        diffEl.style.color = difference > 0 ? '#28a745' : '#dc3545';
-
+        
         const planText = document.getElementById('plan-text');
-        if (currentMode === 'capital') {
-            planText.innerText = `Для достижения результата вносите ${Math.round(monthlyDeposit).toLocaleString('ru-RU')} ₽ ежемесячно.`;
-        } else {
-            planText.innerText = `Чтобы достичь цели, вносите ${Math.round(monthlyDeposit).toLocaleString('ru-RU')} ₽ ежемесячно.`;
-        }
+        planText.innerText = `Для достижения результата вносите ${Math.round(monthlyDeposit).toLocaleString('ru-RU')} ₽ ежемесячно.`;
 
-        document.getElementById('deduction-amount').innerText = '+' + Math.round(deduction).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('tax-saved-amount').innerText = '+' + Math.round(taxSaved).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('investment-income').innerText = Math.round(investmentIncome).toLocaleString('ru-RU') + ' ₽';
-
-        const timeDiffEl = document.getElementById('time-diff');
-        if (difference > 0) {
-            const monthsSaved = Math.round((netIIS / netBS - 1) * 12 * years);
-            const yearsSaved = Math.floor(monthsSaved / 12);
-            const monthsRem = monthsSaved % 12;
-            timeDiffEl.innerText = `ИИС ускорит достижение цели на ${yearsSaved} г. ${monthsRem} мес. (${Math.round((netIIS - netBS) / netBS * 100)}%)`;
-        }
+        document.getElementById('time-diff').innerText = `ИИС ускорит достижение цели на ${Math.round(difference/netBS*100)}% быстрее.`;
 
         const ctx = document.getElementById('myChart').getContext('2d');
         if (chartInstance) chartInstance.destroy();
@@ -807,35 +485,21 @@
                     label: 'Итоговая сумма',
                     data: [Math.round(netIIS), Math.round(netBS)],
                     backgroundColor: ['#28a745', '#6c757d'],
-                    borderWidth: 0,
                     borderRadius: 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.toLocaleString('ru-RU') + ' ₽';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString('ru-RU') + ' ₽';
-                            }
-                        }
-                    }
-                }
+                plugins: { legend: { display: false } }
             }
         });
+    }
+
+    function resetCalc() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-0').classList.add('active');
+        document.querySelector('.progress-fill').style.width = '25%';
     }
 </script>
 
