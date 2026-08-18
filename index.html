@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ИИС Калькулятор БКС</title>
+    <!-- Подключаем библиотеку для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0057B7; /* Цвет БКС */
+            --secondary: #F0F2F5;
+            --success: #28a745;
+            --text: #333;
+            --white: #fff;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--secondary);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--white);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Экраны */
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary); }
+
+        /* Карточки выбора */
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mode-card {
+            flex: 1;
+            min-width: 240px;
+            padding: 25px;
+            border: 2px solid transparent;
+            border-radius: var(--radius);
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-card:hover {
+            border-color: var(--primary);
+            background: #eef2f7;
+            transform: translateY(-3px);
+        }
+
+        .mode-card.selected {
+            border-color: var(--primary);
+            background: #eef2f7;
+            box-shadow: 0 0 15px rgba(0,87,183,0.2);
+        }
+
+        .mode-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .mode-title { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+        .mode-desc { font-size: 13px; color: #666; }
+
+        /* Формы */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .helper-text { font-size: 12px; color: #888; margin-top: 5px; }
+        .helper-icon { cursor: pointer; color: var(--primary); font-weight: bold; }
+
+        /* Кнопки */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #004494; }
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover { background: #dee2e6; }
+
+        /* Результат */
+        .result-header { text-align: center; margin-bottom: 20px; }
+        .big-number { font-size: 32px; font-weight: bold; color: var(--success); }
+        .comparison-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--primary);
+        }
+        .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 20px; }
+        
+        .cta-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .cta-title { font-weight: bold; margin-bottom: 10px; }
+
+        /* Инфо-иконки */
+        .tooltip {
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+            border-bottom: 1px dotted #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ЭКРАН 1: Выбор режима -->
+    <div id="screen-select" class="screen active">
+        <h1>Построй свой капитал</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Выберите сценарий, чтобы рассчитать выгоду ИИС</p>
+        
+        <div class="mode-selector">
+            <div class="mode-card" onclick="selectMode('capital')">
+                <span class="mode-icon">📈</span>
+                <div class="mode-title">От Капитала</div>
+                <div class="mode-desc">Уже имею деньги. Хочу увеличить доходность и сэкономить на налогах.</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('goal')">
+                <span class="mode-icon">🎯</span>
+                <div class="mode-title">От Цели</div>
+                <div class="mode-desc">Хочу накопить на квартиру, пенсию или авто. Составлю план.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 2: Ввод данных -->
+    <div id="screen-input" class="screen">
+        <h2 id="form-title">Настройки</h2>
+        <form id="calc-form">
+            <!-- Динамические поля будут здесь -->
+            <div id="dynamic-fields"></div>
+            
+            <div class="form-group">
+                <label>Ставка НДФЛ (прогноз)</label>
+                <select id="taxRate">
+                    <option value="13">13% (До 2.4 млн руб)</option>
+                    <option value="15">15% (2.4 - 5 млн руб)</option>
+                    <option value="18">18% (5 - 20 млн руб)</option>
+                    <option value="20">20% (20 - 50 млн руб)</option>
+                    <option value="22">22% (Свыше 50 млн руб)</option>
+                </select>
+                <div class="helper-text">Или узнайте свою ставку в профиле</div>
+            </div>
+
+            <button type="button" class="btn" onclick="calculate()">Рассчитать выгоду</button>
+            <button type="button" class="btn btn-secondary" onclick="goBack()">Назад</button>
+        </form>
+    </div>
+
+    <!-- ЭКРАН 3: Результат -->
+    <div id="screen-result" class="screen">
+        <div class="result-header">
+            <h3>Ваш результат через <span id="res-years">5</span> лет</h3>
+            <div class="big-number" id="res-total">0 ₽</div>
+            <p>Сумма на ИИС-3 (с учетом вычетов)</p>
+        </div>
+
+        <div class="comparison-box">
+            <strong>Выгода ИИС vs Брокерский счет:</strong>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <div>
+                    <div>На БС:</div>
+                    <b id="bs-amount">0 ₽</b>
+                </div>
+                <div style="color: var(--success); font-size: 24px;">
+                    <b id="diff-amount">+0 ₽</b>
+                </div>
+            </div>
+            <div class="helper-text" id="time-diff" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <div class="cta-box">
+            <div class="cta-title">Ваш план:</div>
+            <p id="plan-text">Вносите X ₽ в месяц</p>
+            <button class="btn" onclick="alert('Переход к открытию/пополнению счета...')">Пополнить ИИС</button>
+            <button class="btn btn-secondary" onclick="resetCalc()">Начать заново</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Глобальные переменные
+    let currentMode = '';
+    let chartInstance = null;
+
+    // Данные сценариев
+    const scenarios = {
+        capital: {
+            title: "Режим: От Капитала",
+            fields: [
+                { id: 'startAmount', label: "Текущая сумма активов (₽)", type: "number", placeholder: "Например: 5000000" },
+                { id: 'years', label: "Срок инвестирования (лет)", type: "range", min: 5, max: 10, step: 1, value: 5 },
+                { id: 'monthlyDeposit', label: "Ежемесячное пополнение (₽)", type: "number", placeholder: "Например: 50000" },
+                { id: 'returnRate', label: "Ожидаемая годовая доходность", type: "select", options: [
+                    {val: 10, text: "Консервативная (Облигации)"},
+                    {val: 15, text: "Умеренная (Сбалансированно)"},
+                    {val: 20, text: "Агрессивная (Акции)"}
+                ]}
+            ]
+        },
+        goal: {
+            title: "Режим: От Цели",
+            fields: [
+                { id: 'goalName', label: "Цель накоплений", type: "select", options: [
+                    {val: "penzion", text: "Пенсия"},
+                    {val: "kvartira", text: "Квартира"},
+                    {val: "auto", text: "Авто"},
+                    {val: "puteshestvie", text: "Путешествие"},
+                    {val: "deti", text: "Детям"},
+                    {val: "other", text: "Другое (введите вручную)"}
+                ]},
+                { id: 'goalAmount', label: "Сумма цели (₽)", type: "number", placeholder: "Например: 5000000" },
+                { id: 'years', label: "Срок инвестирования (лет)", type: "range", min: 5, max: 10, step: 1, value: 5 },
+                { id: 'startAmount', label: "Стартовый взнос (₽)", type: "number", placeholder: "Например: 100000" },
+                { id: 'returnRate', label: "Ожидаемая годовая доходность", type: "select", options: [
+                    {val: 10, text: "Консервативная"},
+                    {val: 15, text: "Умеренная"},
+                    {val: 20, text: "Агрессивная"}
+                ]}
+            ]
+        }
+    };
+
+    // Переключение режимов
+    function selectMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        renderForm();
+        switchScreen('screen-input');
+    }
+
+    function renderForm() {
+        const container = document.getElementById('dynamic-fields');
+        container.innerHTML = '';
+        const data = scenarios[currentMode];
+        document.getElementById('form-title').innerText = data.title;
+
+        // Специфичные поля
+        if (currentMode === 'goal') {
+            const goalSelect = document.createElement('select');
+            goalSelect.id = 'goalName';
+            goalSelect.innerHTML = '<option value="">Выберите цель</option>';
+            data.fields.forEach(f => {
+                if(f.id === 'goalName') {
+                    f.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt.val;
+                        option.text = opt.text;
+                        goalSelect.appendChild(option);
+                    });
+                }
+            });
+            container.appendChild(goalSelect);
+            
+            // Поле для "Другое" (скрыто по умолчанию)
+            const otherInput = document.createElement('input');
+            otherInput.id = 'goalOther';
+            otherInput.type = 'text';
+            otherInput.style.display = 'none';
+            otherInput.placeholder = "Введите вашу цель";
+            goalSelect.onchange = function() {
+                otherInput.style.display = this.value === 'other' ? 'block' : 'none';
+            };
+            container.appendChild(otherInput);
+        }
+
+        // Остальные поля
+        data.fields.forEach(field => {
+            if (field.id === 'goalName') return; // Уже добавили
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-group';
+
+            const label = document.createElement('label');
+            label.innerText = field.label;
+            wrapper.appendChild(label);
+
+            let input;
+            if (field.type === 'range') {
+                input = document.createElement('input');
+                input.type = 'range';
+                input.id = field.id;
+                input.min = field.min;
+                input.max = field.max;
+                input.step = field.step;
+                input.value = field.value;
+                input.oninput = function() {
+                    this.nextElementSibling.innerText = this.value + ' лет';
+                };
+                const valDisplay = document.createElement('span');
+                valDisplay.innerText = field.value + ' лет';
+                wrapper.appendChild(input);
+                wrapper.appendChild(valDisplay);
+            } else if (field.type === 'select') {
+                input = document.createElement('select');
+                input.id = field.id;
+                field.options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.val;
+                    option.text = opt.text;
+                    input.appendChild(option);
+                });
+            } else {
+                input = document.createElement('input');
+                input.type = 'number';
+                input.id = field.id;
+                input.placeholder = field.placeholder;
+            }
+            wrapper.appendChild(input);
+            container.appendChild(wrapper);
+        });
+    }
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function goBack() {
+        switchScreen('screen-select');
+    }
+
+    function resetCalc() {
+        document.getElementById('calc-form').reset();
+        switchScreen('screen-select');
+    }
+
+    // Логика расчета
+    function calculate() {
+        // Сбор данных
+        const startAmount = parseFloat(document.getElementById('startAmount').value) || 0;
+        const monthlyDeposit = parseFloat(document.getElementById('monthlyDeposit').value) || 0;
+        const years = parseInt(document.getElementById('years').value);
+        const returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
+        const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+        
+        // Расчеты
+        const r = returnRate / 12;
+        const n = years * 12;
+
+        // Будущая стоимость (сложный процент)
+        const fv = startAmount * Math.pow(1 + r, n) + 
+                   monthlyDeposit * (Math.pow(1 + r, n) - 1) / r;
+        
+        const totalDeposits = startAmount + (monthlyDeposit * 12 * years);
+        const profit = fv - totalDeposits;
+
+        // 1. Брокерский счет
+        // Налог прогрессивный: 13% до 2.4млн, 15% свыше
+        let taxBS = 0;
+        if (profit > 0) {
+            if (profit <= 2400000) {
+                taxBS = profit * 0.13;
+            } else {
+                taxBS = 2400000 * 0.13 + (profit - 2400000) * 0.15;
+            }
+        }
+        const netBS = fv - taxBS;
+
+        // 2. ИИС
+        // Льгота на доход (до 30млн)
+        let taxIIS = 0;
+        if (profit > 0 && profit > 30000000) {
+            taxIIS = (profit - 30000000) * (profit > 2400000 + 30000000 ? 0.15 : 0.13); // Упрощенно
+            // Корректно: если прибыль > 30млн, то сверх этого лимита платим налог по прогрессивной шкале
+            const taxableIncome = profit - 30000000;
+            if (taxableIncome > 2400000) {
+                taxIIS = 2400000 * 0.13 + (taxableIncome - 2400000) * 0.15;
+            } else {
+                taxIIS = taxableIncome * 0.13;
+            }
+        }
+
+        // Вычет на взнос (400к * ставка)
+        // Упрощение: считаем, что клиент вносит достаточно каждый год, чтобы получить макс вычет
+        const deductionPerYear = 400000 * taxRate;
+        const totalDeduction = deductionPerYear * years;
+
+        const netIIS = fv + totalDeduction;
+
+        // Разница
+        const difference = netIIS - netBS;
+        
+        // Визуализация
+        updateUI(years, fv, netBS, netIIS, difference, totalDeduction, taxBS, monthlyDeposit);
+        switchScreen('screen-result');
+    }
+
+    function updateUI(years, fv, netBS, netIIS, difference, deduction, taxBS, monthlyDeposit) {
+        document.getElementById('res-years').innerText = years;
+        document.getElementById('res-total').innerText = Math.round(netIIS).toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('bs-amount').innerText = Math.round(netBS).toLocaleString('ru-RU') + ' ₽';
+        
+        const diffEl = document.getElementById('diff-amount');
+        diffEl.innerText = '+' + Math.round(difference).toLocaleString('ru-RU') + ' ₽';
+        diffEl.style.color = difference > 0 ? '#28a745' : '#dc3545';
+
+        // План
+        const planText = document.getElementById('plan-text');
+        if (currentMode === 'capital') {
+            planText.innerText = `Для достижения результата вносите ${Math.round(monthlyDeposit).toLocaleString()} ₽ ежемесячно.`;
+        } else {
+            planText.innerText = `Чтобы достичь цели, вносите ${Math.round(monthlyDeposit).toLocaleString()} ₽ ежемесячно.`;
+        }
+
+        // График
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['ИИС-3 (С льготами)', 'Брокерский счет'],
+                datasets: [{
+                    label: 'Итоговая сумма',
+                    data: [Math.round(netIIS), Math.round(netBS)],
+                    backgroundColor: ['#28a745', '#6c757d'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.toLocaleString('ru-RU') + ' ₽';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString('ru-RU') + ' ₽';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Дополнительные инсайты
+        const timeDiffEl = document.getElementById('time-diff');
+        // Упрощенная логика: если выгода > 0, говорим об ускорении (в реальном приложении тут сложнее)
+        if (difference > 0) {
+            timeDiffEl.innerText = `Благодаря вычету ${Math.round(deduction).toLocaleString()} ₽, вы получаете на эту сумму больше.`;
+        }
+    }
+</script>
+
+</body>
+</html>
